@@ -3,6 +3,7 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include <string>
+#include <thread>
 using namespace std;
 using boost::asio::ip::udp;
 
@@ -31,6 +32,16 @@ class client
       return endpoints;
     }
 
+    void recieveMessage(){
+      char reply[max_length];
+      udp::endpoint sender_endpoint;
+      size_t reply_length = getSocket().receive_from(boost::asio::buffer(reply, max_length), sender_endpoint);
+      std::cout << "Reply is: " << std::endl;
+      std::cout.write(reply, reply_length);
+      std::cout << "\n";
+    }
+
+
 };
 
 int main(int argc, char* argv[])
@@ -53,12 +64,8 @@ int main(int argc, char* argv[])
 
 
     // Recieving message from server
-    char reply[max_length];
-    udp::endpoint sender_endpoint;
-    size_t reply_length = client_socket.getSocket().receive_from(boost::asio::buffer(reply, max_length), sender_endpoint);
-    std::cout << "Reply is: " << std::endl;
-    std::cout.write(reply, reply_length);
-    std::cout << "\n";
+    // std::thread listener([&client_socket]() { client_socket.recieveMessage(); });
+    client_socket.recieveMessage();
     
     
   }
